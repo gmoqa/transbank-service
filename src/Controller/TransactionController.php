@@ -25,20 +25,22 @@ class TransactionController extends AbstractController
     public function checkout(Request $request)
     {
         $amount = $request->query->get('amount');
-        $order = $request->query->get('order');
+        $buyOrder = $request->query->get('order');
 
-        if (!$amount || !$order) {
+        if (!$amount || !$buyOrder) {
             throw new BadRequestHttpException('Missing required params');
         }
 
         $sessionId = uniqid();
 
-        $returnUrl = "http://localhost/transactions/result";
-        $finalUrl = "http://localhost/transactions/end";
+        $appUrl = $this->getParameter('app_url');
+
+        $returnUrl = "${appUrl}/transactions/result";
+        $finalUrl = "${appUrl}/transactions/end";
 
         $transaction = (new Webpay(Configuration::forTestingWebpayPlusNormal()))->getNormalTransaction();
 
-        $initResult = $transaction->initTransaction($amount, $order, $sessionId, $returnUrl, $finalUrl);
+        $initResult = $transaction->initTransaction($amount, $buyOrder, $sessionId, $returnUrl, $finalUrl);
 
         return $this->render('form.html.twig', [
             'url' => $initResult->url,
@@ -47,16 +49,45 @@ class TransactionController extends AbstractController
     }
 
     /**
+     * @param Request $request
      * @Route("/result", name="transaction_result")
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function result() {
+    public function result(Request $request)
+    {
+        $token = $request->get('token_ws');
 
+        if (!$token) {
+            throw new BadRequestHttpException('Missing token');
+        }
+
+        $transaction = (new Webpay(Configuration::forTestingWebpayPlusNormal()))->getNormalTransaction();
+        $webpayResponse = $transaction->getTransactionResult($token);
+        $output = $webpayResponse->detailOutput;
+
+        if ($output->responseCode !== 0) {
+            throw new BadRequestHttpException('Payment declined');
+        }
+
+        return $this->render('form.html.twig', [
+            'url' => $webpayResponse->urlRedirection,
+            'token' => $token
+        ]);
     }
 
     /**
+     * @param Request $request
      * @Route("/end", name="transaction_end")
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function end() {
+    public function end(Request $request)
+    {
+        $token = $request->get('token_ws');
 
+        if (!$token) {
+            throw new BadRequestHttpException('Missing token');
+        }
+
+        return $this->render('success.html.twig');
     }
 }
