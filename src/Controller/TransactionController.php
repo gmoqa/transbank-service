@@ -2,12 +2,12 @@
 
 namespace App\Controller;
 
+use App\Service\TransactionService;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
-use Transbank\Webpay\Configuration;
-use Transbank\Webpay\Webpay;
 
 /**
  * Class TransactionController
@@ -18,17 +18,24 @@ use Transbank\Webpay\Webpay;
 class TransactionController extends AbstractController
 {
     /**
-     * @var Webpay
+     * @var \Transbank\Webpay\WebpayOneClick
      */
     private $transaction;
 
     /**
-     * TransactionController constructor.
+     * @var LoggerInterface
      */
-    public function __construct()
+    private $logger;
+
+    /**
+     * TransactionController constructor.
+     * @param LoggerInterface $logger
+     * @param TransactionService $transactionService
+     */
+    public function __construct(LoggerInterface $logger, TransactionService $transactionService)
     {
-        $this->transaction = (new Webpay(Configuration::forTestingWebpayPlusNormal()))
-            ->getNormalTransaction();
+        $this->logger = $logger;
+        $this->transaction = $transactionService->getTestTransaction();
     }
 
     /**
