@@ -18,6 +18,20 @@ use Transbank\Webpay\Webpay;
 class TransactionController extends AbstractController
 {
     /**
+     * @var Webpay
+     */
+    private $transaction;
+
+    /**
+     * TransactionController constructor.
+     */
+    public function __construct()
+    {
+        $this->transaction = (new Webpay(Configuration::forTestingWebpayPlusNormal()))
+            ->getNormalTransaction();
+    }
+
+    /**
      * @param Request $request
      * @Route("/checkout", name="transaction_checkout")
      * @return \Symfony\Component\HttpFoundation\Response
@@ -38,9 +52,7 @@ class TransactionController extends AbstractController
         $returnUrl = "${appUrl}/transactions/result";
         $finalUrl = "${appUrl}/transactions/end";
 
-        $transaction = (new Webpay(Configuration::forTestingWebpayPlusNormal()))->getNormalTransaction();
-
-        $initResult = $transaction->initTransaction($amount, $buyOrder, $sessionId, $returnUrl, $finalUrl);
+        $initResult = $this->transaction->initTransaction($amount, $buyOrder, $sessionId, $returnUrl, $finalUrl);
 
         return $this->render('form.html.twig', [
             'url' => $initResult->url,
@@ -61,8 +73,7 @@ class TransactionController extends AbstractController
             throw new BadRequestHttpException('Missing token');
         }
 
-        $transaction = (new Webpay(Configuration::forTestingWebpayPlusNormal()))->getNormalTransaction();
-        $webpayResponse = $transaction->getTransactionResult($token);
+        $webpayResponse = $this->transaction->getTransactionResult($token);
         $output = $webpayResponse->detailOutput;
 
         if ($output->responseCode !== 0) {
