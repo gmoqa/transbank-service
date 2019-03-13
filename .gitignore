@@ -6,3 +6,4 @@
 /vendor/
 /.web-server-pid
 .idea/
+.env
