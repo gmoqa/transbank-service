@@ -1,0 +1,21 @@
+{
+    "accountingDate": "0313",
+    "buyOrder": "3242343277777",
+    "cardDetail": {
+        "cardNumber": "6623",
+        "cardExpirationDate": null
+    },
+    "detailOutput": {
+        "authorizationCode": "1213",
+        "paymentTypeCode": "VD",
+        "responseCode": 0,
+        "sharesNumber": 0,
+        "amount": "27540",
+        "commerceCode": "597020000540",
+        "buyOrder": "3242343277777"
+    },
+    "sessionId": "5c8937c0985cd",
+    "transactionDate": "2019-03-13T13:02:56.860-04:00",
+    "urlRedirection": "https:\/\/webpay3gint.transbank.cl\/webpayserver\/voucher.cgi",
+    "VCI": "TSY"
+}

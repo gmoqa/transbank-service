@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Service\TransactionService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,14 +29,21 @@ class TransactionController extends AbstractController
     private $logger;
 
     /**
+     * @var Filesystem
+     */
+    private $fileSystem;
+
+    /**
      * TransactionController constructor.
      * @param LoggerInterface $logger
      * @param TransactionService $transactionService
+     * @param Filesystem $filesystem
      */
-    public function __construct(LoggerInterface $logger, TransactionService $transactionService)
+    public function __construct(LoggerInterface $logger, TransactionService $transactionService, Filesystem $filesystem)
     {
         $this->logger = $logger;
         $this->transaction = $transactionService->getTestTransaction();
+        $this->fileSystem = $filesystem;
     }
 
     /**
@@ -86,6 +94,8 @@ class TransactionController extends AbstractController
         if ($output->responseCode !== 0) {
             throw new BadRequestHttpException('Payment declined');
         }
+
+        $this->fileSystem->dumpFile("../json/$token.json", json_encode($webpayResponse, JSON_PRETTY_PRINT));
 
         return $this->render('form.html.twig', [
             'url' => $webpayResponse->urlRedirection,
