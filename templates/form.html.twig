@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <form id="form" name="form" action="{{ url }}" method="POST" style="visibility:hidden">
+        <input name="token_ws" value="{{ token }}">
+        <input type="submit" value="Submit">
+    </form>
+{% endblock %}
+{% block javascripts %}
+    <script type="text/javascript">
+        window.onload = function() {
+            document.forms['form'].submit();
+        }
+    </script>
+{% endblock %}
