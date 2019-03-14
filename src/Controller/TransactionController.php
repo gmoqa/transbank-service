@@ -73,6 +73,8 @@ class TransactionController extends AbstractController
 
         $this->log("Checkout | Amount : $amount | Order : $buyOrder");
 
+        die('here');
+
         $sessionId = uniqid();
         $appUrl = $this->getParameter('app_url');
         $returnUrl = "${appUrl}/transactions/result";
