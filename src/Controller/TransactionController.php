@@ -73,8 +73,6 @@ class TransactionController extends AbstractController
 
         $this->log("Checkout | Amount : $amount | Order : $buyOrder");
 
-        $this->checkOrderOrThrowException($buyOrder);
-
         $sessionId = uniqid();
         $appUrl = $this->getParameter('app_url');
         $returnUrl = "${appUrl}/transactions/result";
@@ -83,6 +81,7 @@ class TransactionController extends AbstractController
         $this->log("Transaction Request | Amount : $amount | Order : $buyOrder | Session : $sessionId");
 
         try {
+            $this->checkOrderOrThrowException($buyOrder);
             $initResult = $this->transaction->initTransaction($amount, $buyOrder, $sessionId, $returnUrl, $finalUrl);
             $this->log("Transaction Status | ". json_encode($initResult));
             $this->log("Transaction Response | Token : $initResult->token | URL : $initResult->url");
@@ -181,11 +180,12 @@ class TransactionController extends AbstractController
      */
     private function createOrderByWebPayResponse($webpayResponse)
     {
+        $details = $webpayResponse->detailOutput;
         $order = new Order();
-        $order->setAmount($webpayResponse['detailOutput']['amount']);
-        $order->setCode($webpayResponse['buyOrder']);
+        $order->setAmount($details->amount);
+        $order->setCode($details->buyOrder);
         $order->setStatus(Order::PAID);
-        $order->setWebpayResponse(json_encode($webpayResponse, JSON_PRETTY_PRINT));
+        $order->setWebpayResponse(json_encode($details, JSON_PRETTY_PRINT));
         $this->entityManager->persist($order);
         $this->entityManager->flush();
         return;
