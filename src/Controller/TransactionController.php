@@ -140,16 +140,20 @@ class TransactionController extends AbstractController
      * @param Request $request
      * @Route("/end", name="transaction_end")
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function end(Request $request)
     {
         $token = $request->get('token_ws');
-
-        if (!$token) {
-            throw new BadRequestHttpException('Missing token');
+        try {
+            if (!$token) {
+                throw new BadRequestHttpException('Missing token');
+            }
+            return $this->render('success.html.twig');
+        } catch (\Exception $e) {
+            $this->log("Payment Rejected | Token : NULL | Exception : ".$e->getMessage());
+            return $this->render('rejection.html.twig');
         }
-
-        return $this->render('success.html.twig');
     }
 
     private function checkOrderOrThrowException($buyOrder)
