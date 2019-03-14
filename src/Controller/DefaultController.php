@@ -20,6 +20,7 @@ class DefaultController extends AbstractController
         return $this->json([
             'message' => 'Welcome to TBK API',
             'checkout' => $this->getParameter('app_url').'/transactions/checkout?amount='.rand(1000, 10000).'&order='.uniqid(),
+            'logs' => $this->getParameter('app_url').'/logs',
             'cards' => [
                 'VISA' => [
                     'NUMBER' => '4051885600446623',
