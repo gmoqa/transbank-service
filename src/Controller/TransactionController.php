@@ -64,7 +64,6 @@ class TransactionController extends AbstractController
      */
     public function checkout(Request $request)
     {
-        die('here');
         $amount = $request->query->get('amount');
         $buyOrder = $request->query->get('order');
 
