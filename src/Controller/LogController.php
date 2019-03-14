@@ -40,4 +40,19 @@ class LogController extends AbstractController
            'logs' => $logs
         ]);
     }
+
+    /**
+     * @throws \Exception
+     * @Route("/test", name="logs_persist_logs")
+     */
+    public function save()
+    {
+        $log = new Log();
+        $log->setDetails('Test Log');
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
+        return $this->json([
+            'message' => 'Done',
+        ]);
+    }
 }
