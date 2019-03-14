@@ -67,20 +67,24 @@ class TransactionController extends AbstractController
         $amount = $request->query->get('amount');
         $buyOrder = $request->query->get('order');
 
-        if (!$amount || !$buyOrder) {
-            throw new BadRequestHttpException('Missing required params');
-        }
-
-        $this->log("Checkout | Amount : $amount | Order : $buyOrder");
-
-        $sessionId = uniqid();
-        $appUrl = $this->getParameter('app_url');
-        $returnUrl = "${appUrl}/transactions/result";
-        $finalUrl = "${appUrl}/transactions/end";
-
-        $this->log("Transaction Request | Amount : $amount | Order : $buyOrder | Session : $sessionId");
-
         try {
+            if (!$amount || !$buyOrder) {
+                throw new BadRequestHttpException('Missing required params');
+            }
+
+            if (!is_numeric($amount)) {
+                throw new BadRequestHttpException('Invalid Amount');
+            }
+
+            $this->log("Checkout | Amount : $amount | Order : $buyOrder");
+
+            $sessionId = uniqid();
+            $appUrl = $this->getParameter('app_url');
+            $returnUrl = "${appUrl}/transactions/result";
+            $finalUrl = "${appUrl}/transactions/end";
+
+            $this->log("Transaction Request | Amount : $amount | Order : $buyOrder | Session : $sessionId");
+
             $this->checkOrderOrThrowException($buyOrder);
             $initResult = $this->transaction->initTransaction($amount, $buyOrder, $sessionId, $returnUrl, $finalUrl);
             $this->log("Transaction Status | ". json_encode($initResult));
