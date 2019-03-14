@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Log;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -14,12 +16,28 @@ use Symfony\Component\Routing\Annotation\Route;
 class LogController extends AbstractController
 {
     /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
+    /**
+     * LogController constructor.
+     * @param EntityManagerInterface $entityManager
+     */
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
+    /**
      * @Route("", name="logs_list")
      */
     public function index()
     {
-        return $this->json([
-            'message' => 'logs',
+        $logs = $this->entityManager->getRepository(Log::class)->findBy([], ['id' => 'desc'], 100);
+
+        return $this->render('log/index.html.twig', [
+           'logs' => $logs
         ]);
     }
 }
